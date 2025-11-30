@@ -1,0 +1,32 @@
+services:
+  db:
+    image: mysql:8.4
+    command:
+      - 'mysqld'
+      - '--character-set-server=utf8mb4'
+      - 'collation-server=utf8mb4_unicode_ci'
+      - '--lower_case_table_names=1'
+    volumes:
+      - ./db/initdb:/docker-entrypoint-initdb.db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: notes
+  webapp:
+    build:
+      context: ./app
+      dockerfile: ./Dockerfile
+    command: npm start
+    ports:
+      - "8080:3000"
+    depends_on:
+      - db
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=${MYSQL_ROOT_USERNAME}
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=notes
+      - AZURE_OPENAI_ENDPOINT=${AOAI_ENDPOINT}
+      - AZURE_OPENAI_DEPLOYMENT_NAME=${AOAI_DEPLOYMENT_NAME}
+      - AZURE_OPENAI_API_KEY={AOAI_API_KEY}
+      - OPENAI_API_VERSION=${AOAI_API_VERSION}
